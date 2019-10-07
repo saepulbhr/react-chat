@@ -1,10 +1,8 @@
 import React from 'react';
 import io from 'socket.io-client';
-import markdown from 'markdown'
 
 const axios = require('axios');
 
-const socket = io('http://localhost:4000');
 
 class Form extends React.Component {
     constructor(props) {
@@ -15,35 +13,34 @@ class Form extends React.Component {
             content: []
         }
 
-        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleSubmit = e => {
-        const api = `http://localhost:4000/users`
+        e.preventDefault()
+
+        const api = `http://localhost:4000/`
         const data = {
             fullname: this.state.fullname,
             message: this.state.message
         }
 
-        axios.post(api, data).then(() => {
+        const socket = io('http://localhost:4001');
+        socket.emit('addchat', data);
+
+        axios.post(api, data).then((data) => {
+            let item = data.data.data;
+            let newData = { _id: item._id, fullname: item.fullname, message: item.messages };
+            this.props.onAdd(newData)
             this.setState({
                 fullname: '',
                 message: ''
             });
-            socket.emit('addchat', 'typing');
         }).catch(err => {
             console.log(err)
         })
-        e.preventDefault()
     }
 
-    handleChange = (e) => {
-        this.setState({ 
-            fullname: e.target.value,
-            message: e.target.value
-        })
-    }
 
     render() {
         return (

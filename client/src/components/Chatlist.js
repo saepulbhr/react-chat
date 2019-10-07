@@ -1,52 +1,31 @@
 import React from 'react';
-// import io from 'socket.io-client';
+import { mdReact } from 'markdown-react-js';
+import io from 'socket.io-client';
 import Form from './Form';
-
-// const socket = io('http://localhost:4000');
 
 const axios = require('axios');
 class Chatlist extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            content: []
-        }
-    }
+    state = {
 
-    getData() {
-        axios.get(`http://localhost:4000/users`)
-            .then(data => {
-                console.log('ini hasil', data.data)
-                this.setState({
-                    content: [...data.data]
-                })
-            })
-
-        // socket.on('loaddata', function () {
-
-        //     axios.get(`http://localhost:4000/users`)
-        //         .then(data => {
-        //             this.setState({
-        //                 content: [...data.data]
-        //             })
-        //         })
-        //         .catch(err => {
-        //             console.log(err)
-        //         })
-
-        // }.bind(this));
-
+        content: []
     }
 
     componentDidMount() {
         // console.log('>>>>> sedang di pasang')
-        axios.get(`http://localhost:4000/users`)
+
+        const socket = io('http://localhost:4001/');
+        axios.get(`http://localhost:4000`)
             .then(data => {
-                console.log('ini hasil', data.data)
                 this.setState({
                     content: [...data.data]
                 })
             })
+
+        socket.on('loaddata', (data) => {
+            this.setState({
+                content: [...this.state.content, data]
+            });
+        });
     }
 
     handleClick = userId => {
@@ -54,11 +33,22 @@ class Chatlist extends React.Component {
             method: 'delete'
         };
 
-        fetch("http://localhost:4000/users/" + userId, requestOptions).then((response) => {
+        fetch("http://localhost:4000/" + userId, requestOptions).then((response) => {
             return response.json();
         }).then((result) => {
-            this.getData()
+            axios.get(`http://localhost:4000`)
+                .then(data => {
+                    this.setState({
+                        content: [...data.data]
+                    })
+                })
         });
+    }
+
+    onAdd = (item) => {
+        this.setState(prevState => ({
+            content: [...prevState.content, item]
+        }))
     }
 
 
@@ -78,7 +68,7 @@ class Chatlist extends React.Component {
                         </li>
                     )
                 })}
-                <Form />
+                <Form onAdd={this.onAdd} />
             </ul>
         )
     }

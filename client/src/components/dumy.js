@@ -1,9 +1,10 @@
 import React from 'react';
+import { mdReact } from 'markdown-react-js';
 import Title from './Title';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:4000');
-console.log(socket)
+// console.log(socket)
 
 const axios = require('axios');
 class Chat extends React.Component {
@@ -20,8 +21,7 @@ class Chat extends React.Component {
     }
 
     getData() {
-
-        axios.get(`http://localhost:4000/users`)
+        axios.get(`http://localhost:4000/`)
             .then(data => {
                 this.setState({
                     content: [...data.data]
@@ -32,8 +32,8 @@ class Chat extends React.Component {
             })
 
         socket.on('loaddata', function (msg) {
-
-            axios.get(`http://localhost:4000/users`)
+            console.log('ini hasil on', msg)
+            axios.get(`http://localhost:4000/`)
                 .then(data => {
                     this.setState({
                         content: [...data.data]
@@ -42,13 +42,11 @@ class Chat extends React.Component {
                 .catch(err => {
                     console.log(err)
                 })
-
         }.bind(this));
-
     }
 
     handleSubmit = e => {
-        const api = `http://localhost:4000/users`
+        const api = `http://localhost:4000/`
         const data = {
             fullname: this.state.fullname,
             message: this.state.message
@@ -59,7 +57,7 @@ class Chat extends React.Component {
                 fullname: '',
                 message: ''
             });
-            socket.emit('addchat', 'typing');
+            socket.emit('addchat', data);
         }).catch(err => {
             console.log(err)
         })
@@ -76,6 +74,7 @@ class Chat extends React.Component {
     componentDidMount() {
         // console.log('>>>>> sedang di pasang')
         this.getData()
+        
     }
 
     componentWillUnmount() {
@@ -88,7 +87,7 @@ class Chat extends React.Component {
             method: 'delete'
         };
 
-        fetch("http://localhost:4000/users/" + userId, requestOptions).then((response) => {
+        fetch("http://localhost:4000/" + userId, requestOptions).then((response) => {
             return response.json();
         }).then((result) => {
             this.getData()
@@ -109,7 +108,7 @@ class Chat extends React.Component {
                                         <div className="timeline-panel">
                                             <div className="timeline-body">
                                                 <h6 className="timeline-title">{item.fullname}</h6>
-                                                <p>{item.message}</p>
+                                                <p>{mdReact()(item.message)}</p>
                                             </div>
                                         </div>
                                     </li>

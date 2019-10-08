@@ -25,9 +25,6 @@ class Form extends React.Component {
             message: this.state.message
         }
 
-        const socket = io('http://localhost:4001');
-        socket.emit('addchat', data);
-
         axios.post(api, data).then((data) => {
             let item = data.data.data;
             let newData = { _id: item._id, fullname: item.fullname, message: item.messages };
@@ -39,6 +36,10 @@ class Form extends React.Component {
         }).catch(err => {
             console.log(err)
         })
+
+        const socket = io('http://localhost:4001/');
+        socket.emit('addchat', data);
+        console.log('nilai dari>>', data)
     }
 
 

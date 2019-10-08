@@ -6,7 +6,8 @@ import Form from './Form';
 const axios = require('axios');
 class Chatlist extends React.Component {
     state = {
-
+        fullname: '',
+        message: '',
         content: []
     }
 
@@ -14,18 +15,35 @@ class Chatlist extends React.Component {
         // console.log('>>>>> sedang di pasang')
 
         const socket = io('http://localhost:4001/');
-        axios.get(`http://localhost:4000`)
+
+        socket.on('result-data', (data) => {
+            axios.get(`http://localhost:4000/`)
+                .then(data => {
+                    this.setState({
+                        content: [...data.data]
+                    })
+                })
+        });
+
+        axios.get(`http://localhost:4000/`)
             .then(data => {
+                console.log('isi', data)
                 this.setState({
                     content: [...data.data]
                 })
             })
 
-        socket.on('loaddata', (data) => {
+        socket.on('loaddata', data => {
             this.setState({
                 content: [...this.state.content, data]
             });
         });
+    }
+
+    onAdd = (item) => {
+        this.setState(prevState => ({
+            content: [...prevState.content, item]
+        }))
     }
 
     handleClick = userId => {
@@ -43,14 +61,10 @@ class Chatlist extends React.Component {
                     })
                 })
         });
-    }
 
-    onAdd = (item) => {
-        this.setState(prevState => ({
-            content: [...prevState.content, item]
-        }))
+        const socket = io('http://localhost:4001/');
+        socket.emit('delete')
     }
-
 
     render() {
         return (
@@ -62,7 +76,7 @@ class Chatlist extends React.Component {
                             <div className="timeline-panel">
                                 <div className="timeline-body">
                                     <h6 className="timeline-title">{item.fullname}</h6>
-                                    <p>{mdReact()(item.message)}</p>
+                                    {mdReact()(item.message)}
                                 </div>
                             </div>
                         </li>

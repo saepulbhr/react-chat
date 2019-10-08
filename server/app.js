@@ -29,11 +29,14 @@ const io = require('socket.io')(connectSocket);
 
 io.on('connection', function (socket) {
     socket.on('addchat', function (data) {
-        
         io.emit('loaddata', data)
     });
 
 
+// socket delete
+    socket.on('delete', function(msg){
+        io.emit('result-data', msg)
+    })
 
 });
 

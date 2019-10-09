@@ -27,7 +27,6 @@ class Chatlist extends React.Component {
 
         axios.get(`http://localhost:4000/`)
             .then(data => {
-                console.log('isi', data)
                 this.setState({
                     content: [...data.data]
                 })

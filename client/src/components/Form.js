@@ -26,6 +26,7 @@ class Form extends React.Component {
         }
 
         axios.post(api, data).then((data) => {
+            console.log('ini hasil dari', data)
             let item = data.data.data;
             let newData = { _id: item._id, fullname: item.fullname, message: item.messages };
             this.props.onAdd(newData)
